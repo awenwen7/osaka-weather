@@ -4,7 +4,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>大阪府 │ 東大阪市</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&display=swap" rel="stylesheet">
@@ -22,7 +21,6 @@ body {
   font-family: Arial, "Noto Sans JP", sans-serif;
 }
 
-/* 天氣卡片 */
 .weather-card {
   width: 96%;
   max-width: 650px;
@@ -30,13 +28,11 @@ body {
   margin: 0 auto;
   padding: 12px 14px 10px;
   background: #FFFFFF;
-
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
-/* 第一區：最上方標題 */
 .header {
   width: 100%;
   display: flex;
@@ -45,7 +41,6 @@ body {
   gap: 12px;
   text-align: center;
   white-space: nowrap;
-
   font-family: "Noto Serif JP", serif;
   color: #3e3e3e;
 }
@@ -60,7 +55,6 @@ body {
   font-weight: 400;
 }
 
-/* 第二區：當日天氣 */
 .top-section {
   width: 100%;
   display: flex;
@@ -102,7 +96,6 @@ body {
   line-height: 1.2;
 }
 
-/* 第三區：七日天氣 */
 .forecast {
   width: 100%;
   display: grid;
@@ -151,7 +144,6 @@ body {
   min-height: 12px;
 }
 
-/* 手機版 */
 @media (max-width: 420px) {
   .weather-card {
     width: 96%;
@@ -222,27 +214,22 @@ body {
 
 <div class="weather-card">
 
-  <!-- 第一區：標題 -->
   <div class="header">
     <div class="location">大阪府 │ 東大阪市</div>
     <div class="date" id="today-date">読み込み中</div>
   </div>
 
-  <!-- 第二區：當日天氣 -->
   <div class="top-section">
     <div class="current-weather">
-
       <div class="current-icon" id="current-icon"></div>
 
       <div class="current-info">
         <div class="current-temp" id="current-temp">--°</div>
         <div class="current-description" id="current-description">--</div>
       </div>
-
     </div>
   </div>
 
-  <!-- 第三區：七日天氣 -->
   <div class="forecast" id="forecast"></div>
 
 </div>
@@ -255,41 +242,32 @@ const weekdays = [
   "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
 ];
 
-/* 天氣日文名稱 */
 function weatherText(code) {
   if (code === 0) return "晴れ";
   if (code === 1) return "晴れ";
   if (code === 2) return "晴れ時々曇り";
   if (code === 3) return "曇り";
-
   if ([45, 48].includes(code)) return "霧";
-
   if ([51, 53, 55].includes(code)) return "小雨";
   if ([56, 57].includes(code)) return "凍雨";
-
   if ([61, 63, 65, 66, 67].includes(code)) return "雨";
-
   if ([71, 73, 75, 77].includes(code)) return "雪";
-
   if ([80, 81, 82].includes(code)) return "にわか雨";
   if ([85, 86].includes(code)) return "にわか雪";
-
   if ([95, 96, 99].includes(code)) return "雷雨";
 
   return "曇り";
 }
 
-/* 全新線條風格天氣圖示 */
+
+// 日本氣象風格：粗線條、圓角、柔和色彩
 function weatherIcon(code, isDay = 1) {
 
   const sun = `
-    <circle cx="32" cy="32" r="11"
-      fill="#F8D36B"/>
-
-    <g stroke="#E9B94D"
-      stroke-width="2.5"
-      stroke-linecap="round">
-
+    <g stroke="#F5A623" stroke-width="4.5"
+       stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="32" cy="32" r="12"
+        fill="#FFD66B"/>
       <path d="
         M32 5 V12
         M32 52 V59
@@ -299,171 +277,138 @@ function weatherIcon(code, isDay = 1) {
         M46 46 L51 51
         M51 13 L46 18
         M18 46 L13 51
-      "/>
+      " fill="none"/>
     </g>
   `;
 
   const moon = `
     <path d="
-      M42 10
-      C27 10 17 23 20 38
-      C23 52 39 57 50 47
-      C38 50 27 41 27 29
-      C27 20 33 13 42 10Z
+      M43 9
+      C29 10 20 21 21 34
+      C22 47 33 55 45 52
+      C36 47 32 39 33 29
+      C34 20 38 13 43 9Z
     "
-    fill="#EACB76"/>
+    fill="#F7D98B"
+    stroke="#E5B95F"
+    stroke-width="3.5"
+    stroke-linejoin="round"/>
   `;
 
   const cloud = `
     <path d="
-      M18 45
-      C10 45 7 40 8 34
-      C9 28 14 24 21 25
-      C23 15 34 11 43 17
-      C48 20 50 25 49 30
-      C57 29 62 35 61 41
-      C60 46 56 49 51 49
-      H18
+      M17 47
+      C9 47 6 41 7 34
+      C8 27 14 23 21 24
+      C24 13 33 9 42 13
+      C49 16 52 22 52 28
+      C60 28 62 34 61 40
+      C60 45 56 47 50 47Z
     "
-    fill="#FFFFFF"
-    stroke="#AAB8C4"
-    stroke-width="2.5"
+    fill="#EAF1F7"
+    stroke="#71869A"
+    stroke-width="4"
     stroke-linecap="round"
     stroke-linejoin="round"/>
   `;
 
   const rain = `
-    <g stroke="#79B7DB"
-      stroke-width="3"
-      stroke-linecap="round">
-
-      <path d="M22 49 L18 57"/>
-      <path d="M36 49 L32 57"/>
-      <path d="M50 49 L46 57"/>
+    <g fill="none"
+       stroke="#55B6E8"
+       stroke-width="4.5"
+       stroke-linecap="round">
+      <path d="M20 53 L17 60"/>
+      <path d="M33 53 L30 60"/>
+      <path d="M46 53 L43 60"/>
     </g>
   `;
 
   const snow = `
-    <g stroke="#79B7DB"
-      stroke-width="2"
-      stroke-linecap="round">
-
-      <path d="
-        M20 51 V59
-        M16 55 H24
-        M17 52 L23 58
-        M23 52 L17 58
-      "/>
-
-      <path d="
-        M39 51 V59
-        M35 55 H43
-        M36 52 L42 58
-        M42 52 L36 58
-      "/>
+    <g stroke="#65BCEB"
+       stroke-width="3"
+       stroke-linecap="round"
+       stroke-linejoin="round">
+      <path d="M32 48 V62 M25 52 L39 58 M39 52 L25 58"/>
+      <path d="M32 48 L29 51 M32 48 L35 51"/>
+      <path d="M32 62 L29 59 M32 62 L35 59"/>
+      <path d="M25 52 L25 56 M25 52 L29 52"/>
+      <path d="M39 52 L39 56 M39 52 L35 52"/>
+      <path d="M25 58 L29 58 M39 58 L35 58"/>
     </g>
   `;
 
   const lightning = `
     <path d="
-      M36 47
-      L27 59
-      H35
-      L31 68
-      L46 52
-      H38
-      L43 47Z
+      M34 47 L24 59 L32 59
+      L28 68 L43 53 L35 53 L40 47Z
     "
-    fill="#F2C14E"/>
+    fill="#FFD66B"
+    stroke="#E7A92F"
+    stroke-width="2.5"
+    stroke-linejoin="round"/>
   `;
 
   const fog = `
-    <g stroke="#AAB8C4"
-      stroke-width="2.5"
-      stroke-linecap="round">
-
-      <path d="M13 50 H51"/>
-      <path d="M19 57 H56"/>
-      <path d="M8 43 H44"/>
+    <g fill="none"
+       stroke="#91A6B8"
+       stroke-width="3.5"
+       stroke-linecap="round">
+      <path d="M10 53 H54"/>
+      <path d="M16 60 H48"/>
     </g>
   `;
 
-  let content = "";
+  let icon = "";
 
-  /* 晴天 */
-  if (code === 0) {
-    content = isDay ? sun : moon;
-  }
+  if (code === 0 || code === 1) {
+    icon = isDay ? sun : moon;
 
-  /* 晴時多雲、部分多雲 */
-  else if ([1, 2].includes(code)) {
-    content = `
-      <g transform="translate(-5,-5) scale(0.8)">
+  } else if (code === 2) {
+    icon = `
+      <g transform="translate(-5,-5) scale(0.78)">
         ${isDay ? sun : moon}
       </g>
-      ${cloud}
+      <g transform="translate(5,7) scale(0.85)">
+        ${cloud}
+      </g>
     `;
-  }
 
-  /* 多雲 */
-  else if (code === 3) {
-    content = cloud;
-  }
+  } else if (code === 3) {
+    icon = cloud;
 
-  /* 霧 */
-  else if ([45, 48].includes(code)) {
-    content = `
-      ${cloud}
-      ${fog}
-    `;
-  }
+  } else if ([45, 48].includes(code)) {
+    icon = cloud + fog;
 
-  /* 雨、毛毛雨 */
-  else if (
-    [51, 53, 55, 56, 57,
-     61, 63, 65, 66, 67,
-     80, 81, 82].includes(code)
-  ) {
-    content = `
-      ${cloud}
-      ${rain}
-    `;
-  }
+  } else if ([51, 53, 55, 56, 57, 61, 63, 65,
+              66, 67, 80, 81, 82].includes(code)) {
+    icon = cloud + rain;
 
-  /* 下雪 */
-  else if ([71, 73, 75, 77, 85, 86].includes(code)) {
-    content = `
-      ${cloud}
-      ${snow}
-    `;
-  }
+  } else if ([71, 73, 75, 77, 85, 86].includes(code)) {
+    icon = cloud + snow;
 
-  /* 雷雨 */
-  else if ([95, 96, 99].includes(code)) {
-    content = `
-      ${cloud}
-      ${lightning}
-    `;
-  }
+  } else if ([95, 96, 99].includes(code)) {
+    icon = cloud + lightning + rain;
 
-  else {
-    content = cloud;
+  } else {
+    icon = cloud;
   }
 
   return `
-    <svg viewBox="0 0 64 64"
+    <svg
+      viewBox="0 0 64 72"
       width="100%"
       height="100%"
-      xmlns="http://www.w3.org/2000/svg">
-
-      ${content}
-
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true">
+      ${icon}
     </svg>
   `;
 }
 
-/* 日本日期 */
+
+// 日本時間日期
 function updateDate() {
+
   const now = new Date();
 
   const parts = new Intl.DateTimeFormat("ja-JP", {
@@ -474,19 +419,15 @@ function updateDate() {
     weekday: "long"
   }).formatToParts(now);
 
-  const getPart = (type) =>
+  const getPart = type =>
     parts.find(part => part.type === type).value;
 
-  const year = getPart("year");
-  const month = getPart("month");
-  const day = getPart("day");
-  const weekday = getPart("weekday");
-
   document.getElementById("today-date").textContent =
-    `${year}／${month}／${day}　${weekday}`;
+    `${getPart("year")}／${getPart("month")}／${getPart("day")}　${getPart("weekday")}`;
 }
 
-/* 取得天氣資料 */
+
+// 取得即時天氣及七日預報
 async function loadWeather() {
 
   const url =
@@ -506,7 +447,7 @@ async function loadWeather() {
 
     const data = await response.json();
 
-    /* 當日天氣 */
+    // 當日天氣
     const current = data.current;
 
     document.getElementById("current-temp").textContent =
@@ -518,7 +459,8 @@ async function loadWeather() {
     document.getElementById("current-icon").innerHTML =
       weatherIcon(current.weather_code, current.is_day);
 
-    /* 七日天氣 */
+
+    // 七日天氣
     const daily = data.daily;
     const forecast = document.getElementById("forecast");
 
@@ -534,6 +476,7 @@ async function loadWeather() {
       );
 
       const weekday = weekdays[date.getUTCDay()];
+
       const code = daily.weather_code[i];
 
       const high = Math.round(
@@ -570,21 +513,26 @@ async function loadWeather() {
 
   } catch (error) {
 
-    console.error("天気情報を取得できませんでした", error);
+    console.error(
+      "天気情報を取得できませんでした",
+      error
+    );
 
-    document.getElementById("current-description").textContent =
-      "取得失敗";
+    document.getElementById(
+      "current-description"
+    ).textContent = "取得失敗";
   }
 }
 
-/* 啟動 */
+
+// 初始化
 updateDate();
 loadWeather();
 
-/* 每30分鐘更新天氣 */
+// 每 30 分鐘更新天氣
 setInterval(loadWeather, 30 * 60 * 1000);
 
-/* 每分鐘更新日期 */
+// 每分鐘更新日期
 setInterval(updateDate, 60 * 1000);
 
 </script>
