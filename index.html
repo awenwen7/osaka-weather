@@ -22,19 +22,21 @@ body {
   font-family: Arial, "Noto Sans JP", sans-serif;
 }
 
+/* 天氣卡片 */
 .weather-card {
-  width: 102%;
-  max-width: 700px;
+  width: 96%;
+  max-width: 650px;
   height: 238px;
   margin: 0 auto;
-  padding: 12px 18px 10px;
+  padding: 12px 14px 10px;
   background: #FFFFFF;
+
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
-/* 最上方標題 */
+/* 第一區：最上方標題 */
 .header {
   width: 100%;
   display: flex;
@@ -43,12 +45,13 @@ body {
   gap: 12px;
   text-align: center;
   white-space: nowrap;
+
   font-family: "Noto Serif JP", serif;
   color: #3e3e3e;
 }
 
 .location {
-  font-size: 20px;
+  font-size: 19px;
   font-weight: 700;
 }
 
@@ -57,8 +60,9 @@ body {
   font-weight: 400;
 }
 
-/* 目前天氣 */
+/* 第二區：當日天氣 */
 .top-section {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -69,12 +73,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 8px;
 }
 
 .current-icon {
-  width: 43px;
-  height: 43px;
+  width: 48px;
+  height: 48px;
   flex-shrink: 0;
 }
 
@@ -98,8 +102,9 @@ body {
   line-height: 1.2;
 }
 
-/* 七日天氣 */
+/* 第三區：七日天氣 */
 .forecast {
+  width: 100%;
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 2px;
@@ -116,7 +121,7 @@ body {
 }
 
 .day-name {
-  font-size: 16px;
+  font-size: 15px;
   white-space: nowrap;
 }
 
@@ -137,7 +142,7 @@ body {
 }
 
 .low {
-  opacity: 0.55;
+  opacity: 0.5;
 }
 
 .status {
@@ -149,9 +154,10 @@ body {
 /* 手機版 */
 @media (max-width: 420px) {
   .weather-card {
-    width: 100%;
-    padding: 12px 10px 10px;
+    width: 96%;
+    max-width: none;
     height: 238px;
+    padding: 12px 7px 10px;
   }
 
   .header {
@@ -171,42 +177,42 @@ body {
   }
 
   .current-weather {
-    gap: 3px;
+    gap: 5px;
   }
 
   .current-icon {
-    width: 38px;
-    height: 38px;
+    width: 42px;
+    height: 42px;
   }
 
   .current-temp {
-    font-size: 31px;
+    font-size: 32px;
   }
 
   .current-description {
     font-size: 12px;
   }
 
+  .day {
+    gap: 6px;
+  }
+
   .day-name {
-    font-size: 13px;
+    font-size: 12px;
   }
 
   .day-icon {
-    width: 30px;
-    height: 30px;
+    width: 29px;
+    height: 29px;
   }
 
   .temperatures {
     gap: 2px;
-    font-size: 12px;
+    font-size: 11px;
   }
 
   .status {
-    font-size: 10px;
-  }
-
-  .day {
-    gap: 6px;
+    font-size: 9px;
   }
 }
 </style>
@@ -216,13 +222,13 @@ body {
 
 <div class="weather-card">
 
-  <!-- 最上方置中標題 -->
+  <!-- 第一區：標題 -->
   <div class="header">
     <div class="location">大阪府 │ 東大阪市</div>
     <div class="date" id="today-date">読み込み中</div>
   </div>
 
-  <!-- 目前天氣 -->
+  <!-- 第二區：當日天氣 -->
   <div class="top-section">
     <div class="current-weather">
 
@@ -236,7 +242,7 @@ body {
     </div>
   </div>
 
-  <!-- 七日預報 -->
+  <!-- 第三區：七日天氣 -->
   <div class="forecast" id="forecast"></div>
 
 </div>
@@ -249,19 +255,19 @@ const weekdays = [
   "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
 ];
 
-/* 天氣日文文字 */
+/* 天氣日文名稱 */
 function weatherText(code) {
   if (code === 0) return "晴れ";
   if (code === 1) return "晴れ";
   if (code === 2) return "晴れ時々曇り";
   if (code === 3) return "曇り";
-  if (code === 45 || code === 48) return "霧";
+
+  if ([45, 48].includes(code)) return "霧";
 
   if ([51, 53, 55].includes(code)) return "小雨";
   if ([56, 57].includes(code)) return "凍雨";
 
-  if ([61, 63, 65].includes(code)) return "雨";
-  if ([66, 67].includes(code)) return "凍雨";
+  if ([61, 63, 65, 66, 67].includes(code)) return "雨";
 
   if ([71, 73, 75, 77].includes(code)) return "雪";
 
@@ -273,93 +279,185 @@ function weatherText(code) {
   return "曇り";
 }
 
-/* 天氣圖示 */
+/* 全新線條風格天氣圖示 */
 function weatherIcon(code, isDay = 1) {
+
   const sun = `
-    <circle cx="32" cy="32" r="12" fill="#F8C84A"/>
-    <g stroke="#F8C84A" stroke-width="3" stroke-linecap="round">
-      <path d="M32 5 V12 M32 52 V59 M5 32 H12 M52 32 H59
-      M13 13 L18 18 M46 46 L51 51
-      M51 13 L46 18 M18 46 L13 51"/>
+    <circle cx="32" cy="32" r="11"
+      fill="#F8D36B"/>
+
+    <g stroke="#E9B94D"
+      stroke-width="2.5"
+      stroke-linecap="round">
+
+      <path d="
+        M32 5 V12
+        M32 52 V59
+        M5 32 H12
+        M52 32 H59
+        M13 13 L18 18
+        M46 46 L51 51
+        M51 13 L46 18
+        M18 46 L13 51
+      "/>
     </g>
   `;
 
   const moon = `
-    <path d="M43 10
-    C27 10 17 23 20 37
-    C23 50 37 56 49 48
-    C35 49 26 37 29 25
-    C31 18 36 13 43 10Z"
-    fill="#F8C84A"/>
+    <path d="
+      M42 10
+      C27 10 17 23 20 38
+      C23 52 39 57 50 47
+      C38 50 27 41 27 29
+      C27 20 33 13 42 10Z
+    "
+    fill="#EACB76"/>
   `;
 
   const cloud = `
-    <path d="M17 45
-    C9 45 6 39 8 32
-    C10 25 17 22 23 25
-    C26 13 40 10 48 19
-    C52 23 53 28 52 32
-    C62 32 64 44 55 48
-    Z"
-    fill="#AEBBC7"
-    stroke="#AEBBC7"
-    stroke-width="2"
+    <path d="
+      M18 45
+      C10 45 7 40 8 34
+      C9 28 14 24 21 25
+      C23 15 34 11 43 17
+      C48 20 50 25 49 30
+      C57 29 62 35 61 41
+      C60 46 56 49 51 49
+      H18
+    "
+    fill="#FFFFFF"
+    stroke="#AAB8C4"
+    stroke-width="2.5"
+    stroke-linecap="round"
     stroke-linejoin="round"/>
   `;
 
-  const partlyCloudy = `
-    ${isDay ? sun : moon}
-    <path d="M19 48
-    C11 48 8 42 10 36
-    C12 30 18 28 24 31
-    C27 21 39 19 47 26
-    C51 30 52 34 51 37
-    C61 37 63 48 54 51
-    Z"
-    fill="#AEBBC7"
-    stroke="#AEBBC7"
-    stroke-width="2"/>
+  const rain = `
+    <g stroke="#79B7DB"
+      stroke-width="3"
+      stroke-linecap="round">
+
+      <path d="M22 49 L18 57"/>
+      <path d="M36 49 L32 57"/>
+      <path d="M50 49 L46 57"/>
+    </g>
+  `;
+
+  const snow = `
+    <g stroke="#79B7DB"
+      stroke-width="2"
+      stroke-linecap="round">
+
+      <path d="
+        M20 51 V59
+        M16 55 H24
+        M17 52 L23 58
+        M23 52 L17 58
+      "/>
+
+      <path d="
+        M39 51 V59
+        M35 55 H43
+        M36 52 L42 58
+        M42 52 L36 58
+      "/>
+    </g>
+  `;
+
+  const lightning = `
+    <path d="
+      M36 47
+      L27 59
+      H35
+      L31 68
+      L46 52
+      H38
+      L43 47Z
+    "
+    fill="#F2C14E"/>
+  `;
+
+  const fog = `
+    <g stroke="#AAB8C4"
+      stroke-width="2.5"
+      stroke-linecap="round">
+
+      <path d="M13 50 H51"/>
+      <path d="M19 57 H56"/>
+      <path d="M8 43 H44"/>
+    </g>
   `;
 
   let content = "";
 
+  /* 晴天 */
   if (code === 0) {
     content = isDay ? sun : moon;
-  } else if ([1, 2].includes(code)) {
-    content = partlyCloudy;
-  } else if ([3, 45, 48].includes(code)) {
+  }
+
+  /* 晴時多雲、部分多雲 */
+  else if ([1, 2].includes(code)) {
+    content = `
+      <g transform="translate(-5,-5) scale(0.8)">
+        ${isDay ? sun : moon}
+      </g>
+      ${cloud}
+    `;
+  }
+
+  /* 多雲 */
+  else if (code === 3) {
     content = cloud;
-  } else if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(code)) {
+  }
+
+  /* 霧 */
+  else if ([45, 48].includes(code)) {
     content = `
       ${cloud}
-      <g stroke="#69A9D6" stroke-width="3" stroke-linecap="round">
-        <path d="M22 49 L18 57 M36 49 L32 57 M50 49 L46 57"/>
-      </g>
+      ${fog}
     `;
-  } else if ([71, 73, 75, 77, 85, 86].includes(code)) {
+  }
+
+  /* 雨、毛毛雨 */
+  else if (
+    [51, 53, 55, 56, 57,
+     61, 63, 65, 66, 67,
+     80, 81, 82].includes(code)
+  ) {
     content = `
       ${cloud}
-      <g stroke="#69A9D6" stroke-width="2.5" stroke-linecap="round">
-        <path d="M20 53 L20 59 M17 56 L23 56
-        M36 53 L36 59 M33 56 L39 56
-        M51 53 L51 59 M48 56 L54 56"/>
-      </g>
+      ${rain}
     `;
-  } else if ([95, 96, 99].includes(code)) {
+  }
+
+  /* 下雪 */
+  else if ([71, 73, 75, 77, 85, 86].includes(code)) {
     content = `
       ${cloud}
-      <path d="M36 47 L29 57 H36 L32 65 L46 52 H38 L43 47Z"
-      fill="#F5C542"/>
+      ${snow}
     `;
-  } else {
+  }
+
+  /* 雷雨 */
+  else if ([95, 96, 99].includes(code)) {
+    content = `
+      ${cloud}
+      ${lightning}
+    `;
+  }
+
+  else {
     content = cloud;
   }
 
   return `
     <svg viewBox="0 0 64 64"
-      width="100%" height="100%"
+      width="100%"
+      height="100%"
       xmlns="http://www.w3.org/2000/svg">
+
       ${content}
+
     </svg>
   `;
 }
@@ -390,6 +488,7 @@ function updateDate() {
 
 /* 取得天氣資料 */
 async function loadWeather() {
+
   const url =
     `https://api.open-meteo.com/v1/forecast?latitude=${latitude}` +
     `&longitude=${longitude}` +
@@ -398,12 +497,16 @@ async function loadWeather() {
     `&timezone=Asia%2FTokyo&forecast_days=7`;
 
   try {
+
     const response = await fetch(url);
-    if (!response.ok) throw new Error("Weather API error");
+
+    if (!response.ok) {
+      throw new Error("Weather API error");
+    }
 
     const data = await response.json();
 
-    /* 目前天氣 */
+    /* 當日天氣 */
     const current = data.current;
 
     document.getElementById("current-temp").textContent =
@@ -415,13 +518,14 @@ async function loadWeather() {
     document.getElementById("current-icon").innerHTML =
       weatherIcon(current.weather_code, current.is_day);
 
-    /* 七日預報 */
+    /* 七日天氣 */
     const daily = data.daily;
     const forecast = document.getElementById("forecast");
 
     forecast.innerHTML = "";
 
     for (let i = 0; i < 7; i++) {
+
       const [year, month, dayNumber] =
         daily.time[i].split("-").map(Number);
 
@@ -441,6 +545,7 @@ async function loadWeather() {
       );
 
       const dayElement = document.createElement("div");
+
       dayElement.className = "day";
 
       dayElement.innerHTML = `
@@ -455,13 +560,16 @@ async function loadWeather() {
           <span class="low">${low}°</span>
         </div>
 
-        <div class="status">${weatherText(code)}</div>
+        <div class="status">
+          ${weatherText(code)}
+        </div>
       `;
 
       forecast.appendChild(dayElement);
     }
 
   } catch (error) {
+
     console.error("天気情報を取得できませんでした", error);
 
     document.getElementById("current-description").textContent =
@@ -473,8 +581,12 @@ async function loadWeather() {
 updateDate();
 loadWeather();
 
+/* 每30分鐘更新天氣 */
 setInterval(loadWeather, 30 * 60 * 1000);
+
+/* 每分鐘更新日期 */
 setInterval(updateDate, 60 * 1000);
+
 </script>
 
 </body>
