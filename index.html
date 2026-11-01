@@ -63,12 +63,12 @@ body {
   min-height: 65px;
 }
 
+/* 第二行：當日天氣 */
 .current-weather {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-family: "Noto Serif JP", serif;
 }
 
 .current-icon {
@@ -85,18 +85,23 @@ body {
   gap: 4px;
 }
 
+/* 只有當日溫度使用 Noto Serif JP */
 .current-temp {
+  font-family: "Noto Serif JP", serif;
   font-size: 36px;
   line-height: 1;
   font-weight: 400;
   white-space: nowrap;
 }
 
+/* 只有當日天氣描述使用 Noto Serif JP */
 .current-description {
+  font-family: "Noto Serif JP", serif;
   font-size: 14px;
   line-height: 1.2;
 }
 
+/* 第三行：七日天氣 */
 .forecast {
   width: 100%;
   display: grid;
@@ -146,6 +151,7 @@ body {
 }
 
 @media (max-width: 420px) {
+
   .weather-card {
     width: 96%;
     max-width: none;
@@ -208,6 +214,7 @@ body {
     font-size: 9px;
   }
 }
+
 </style>
 </head>
 
@@ -222,12 +229,14 @@ body {
 
   <div class="top-section">
     <div class="current-weather">
+
       <div class="current-icon" id="current-icon"></div>
 
       <div class="current-info">
         <div class="current-temp" id="current-temp">--°</div>
         <div class="current-description" id="current-description">--</div>
       </div>
+
     </div>
   </div>
 
@@ -236,6 +245,7 @@ body {
 </div>
 
 <script>
+
 const latitude = 34.6794;
 const longitude = 135.6008;
 
@@ -244,6 +254,7 @@ const weekdays = [
 ];
 
 function weatherText(code) {
+
   if (code === 0) return "晴れ";
   if (code === 1) return "晴れ";
   if (code === 2) return "晴れ時々曇り";
@@ -256,6 +267,7 @@ function weatherText(code) {
   if ([80, 81, 82].includes(code)) return "にわか雨";
   if ([85, 86].includes(code)) return "にわか雪";
   if ([95, 96, 99].includes(code)) return "雷雨";
+
   return "曇り";
 }
 
@@ -379,6 +391,7 @@ function weatherIcon(code, isDay = 1) {
 
 // 日本時間日期
 function updateDate() {
+
   const now = new Date();
 
   const parts = new Intl.DateTimeFormat("ja-JP", {
@@ -408,6 +421,7 @@ async function loadWeather() {
     `&timezone=Asia%2FTokyo&forecast_days=7`;
 
   try {
+
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -479,6 +493,7 @@ async function loadWeather() {
     }
 
   } catch (error) {
+
     console.error("天気情報を取得できませんでした", error);
 
     document.getElementById("current-description")
